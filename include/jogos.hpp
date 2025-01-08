@@ -1,5 +1,5 @@
-#ifndef jogos_hpp
-#define Jogos_hpp
+#ifndef JOGOS_HPP
+#define JOGOS_HPP
 #include <iostream>
 #include <vector>
 
