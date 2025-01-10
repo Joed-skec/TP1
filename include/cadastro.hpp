@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream> 
 #include <memory>
+#include <algorithm>
 
 class Jogador {
 private:
@@ -18,6 +19,9 @@ public:
     // construtor
     Jogador(const std::string& nome = "", const std::string& apelido = "", int vitorias = 0, int derrotas = 0)
         : _nome(nome), _apelido(apelido), _vitorias(vitorias), _derrotas(derrotas) {}
+
+    //destrutor
+    ~Jogador() {}
 
     // métodos de acesso
     std::string getNome() const { return _nome; }
@@ -56,7 +60,71 @@ private:
     std::vector<std::unique_ptr<Jogador>> _jogadores;
 
 public:
-    
+    // adicionar jogador ao vetor de cadastros
+    void adicionarJogador(const Jogador& alvo) {
+        _jogadores.push_back(std::make_unique<Jogador>(alvo.getNome(), alvo.getApelido(), alvo.getVitorias(), alvo.getDerrotas()));
+        std::cout << "Jogador adicionado com sucesso!" << std::endl;
+    }
+
+    // mostra o vetor de cadastros
+    void mostrarJogadores() const {
+        if (_jogadores.empty()) {
+            std::cout << "Nenhum jogador cadastrado." << std::endl;
+            return;
+        }
+
+        for (const auto& jogador : _jogadores) {
+            std::cout << "Nome: " << jogador->getNome() << ", Apelido: " << jogador->getApelido()
+                      << ", Vitórias: " << jogador->getVitorias() << ", Derrotas: " << jogador->getDerrotas() << std::endl;
+        }
+    }
+
+    // importa cadastros de um arquivo .txt alvo.
+    void import(const std::string& caminho) {
+        std::ifstream arquivo(caminho);
+        if (!arquivo.is_open()) {
+            std::cerr << "Erro ao abrir o arquivo: " << caminho << std::endl;
+            return;
+        }
+
+        std::string linha;
+        while (std::getline(arquivo, linha)) {
+            if (!linha.empty()) {
+                _jogadores.push_back(std::make_unique<Jogador>(Jogador::deserializar(linha)));
+            }
+        }
+        arquivo.close();
+        std::cout << "Jogadores importados com sucesso!" << std::endl;
+    }
+
+    // remove o jogador do vetor de cadastros por apelido
+    void removeJogador(const std::string& apelido) {
+    auto it = std::remove_if(
+        _jogadores.begin(), 
+        _jogadores.end(),
+        [&apelido](const std::unique_ptr<Jogador>& jogador) {
+            return jogador->getApelido() == apelido;
+        }
+    );
+
+    if (it != _jogadores.end()) {
+        _jogadores.erase(it, _jogadores.end());
+        std::cout << "Jogador com apelido \"" << apelido << "\" removido com sucesso." << std::endl;
+    } else {
+        std::cout << "Jogador com apelido \"" << apelido << "\" não encontrado." << std::endl;
+    }
+}
+
+
+    // verifica se um jogador está dentro do cadastro e retorna verdadeiro ou falso
+    bool check(const Jogador& alvo) const {
+        for (const auto& jogador : _jogadores) {
+            if (jogador->getApelido() == alvo.getApelido()) {
+                return true;
+            }
+        }
+        return false;
+    }
 };
 
 #endif

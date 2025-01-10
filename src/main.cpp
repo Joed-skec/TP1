@@ -6,16 +6,23 @@
 
 int main () {
 
+    //inicializa o vetor de cadastro, carregando as informações do .txt
+    Cadastro jogadores;
+    
     //fazer cadastro
     //input cadastro
     std::string inputApelido;
     std::string inputNome;
 
-    //verifica se já está cadastrado
+    std::cin >> inputNome;
+    std::cin >> inputApelido;
+    
 
-    //realiza o cadastro, ou seja, chama o construtor
+    //verifica se já está cadastrado. procura no vetor de cadastro
 
-    std::cin >> input;
+    //realiza o cadastro, ou seja, chama o construtor da classe Jogador, adiciona ao vetor de cadastro e atualiza o banco de dados (cadastro.txt)
+
+    
     
     return 0;
 }
