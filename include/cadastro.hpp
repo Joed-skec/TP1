@@ -8,17 +8,29 @@
 #include <memory>
 #include <algorithm>
 
+struct Winrate {
+    int _vitorias;
+    int _derrotas;
+
+};
+
 class Jogador {
 private:
     std::string _nome;
     std::string _apelido;
-    int _vitorias;
-    int _derrotas;
+    Winrate Lig4;
+    Winrate Velha;
+    Winrate Reversi;
 
 public:
     // construtor
-    Jogador(const std::string& nome = "", const std::string& apelido = "", int vitorias = 0, int derrotas = 0)
-        : _nome(nome), _apelido(apelido), _vitorias(vitorias), _derrotas(derrotas) {}
+    Jogador(const std::string& nome = "", const std::string& apelido = "", int vitorias1 = 0, int derrotas1 = 0, int vitorias2 = 0, int derrotas2 = 0, int vitorias3 = 0, int derrotas3 = 0)
+        : _nome(nome), _apelido(apelido), 
+        Velha{vitorias1, derrotas1}, 
+        Lig4{vitorias2, derrotas2}, 
+        Reversi{vitorias3, derrotas3}
+        //adicionar outros jogos aqui.
+        {}
 
     //destrutor
     ~Jogador() {}
@@ -26,32 +38,52 @@ public:
     // métodos de acesso
     std::string getNome() const { return _nome; }
     std::string getApelido() const { return _apelido; }
-    int getVitorias() const { return _vitorias; }
-    int getDerrotas() const { return _derrotas; }
+    int getVitorias(const Winrate& jogo) const { return jogo._vitorias; }
+    int getDerrotas(const Winrate& jogo) const { return jogo._derrotas; }
 
     void setNome(const std::string& nome) { _nome = nome; }
     void setApelido(const std::string& apelido) { _apelido = apelido; }
-    void setVitorias(int vitorias) { _vitorias = vitorias; }
-    void setDerrotas(int derrotas) { _derrotas = derrotas; }
+    void setVitorias(Winrate& jogo, int vitorias) { jogo._vitorias = vitorias; }
+    void setDerrotas(Winrate& jogo, int derrotas) { jogo._derrotas = derrotas; }
 
     // serializar o jogador como string para salvar em arquivo
     std::string serializar() const {
-        return _nome + "," + _apelido + "," + std::to_string(_vitorias) + "," + std::to_string(_derrotas);
+        return _nome + "," + _apelido + "," + 
+        std::to_string(Velha._vitorias) + "," + std::to_string(Velha._derrotas) + "," + 
+        std::to_string(Lig4._vitorias) + "," + std::to_string(Lig4._derrotas) + "," + 
+        std::to_string(Reversi._vitorias) + "," + std::to_string(Reversi._derrotas);
+        //é possível adicionar novos jogos a partir daqui.
     }
 
-    // deserializar uma string para criar um jogador
+    //deserializar uma string para criar um jogador
     static Jogador deserializar(const std::string& linha) {
-        size_t pos1 = linha.find(',');
-        size_t pos2 = linha.find(',', pos1 + 1);
-        size_t pos3 = linha.find(',', pos2 + 1);
 
-        std::string nome = linha.substr(0, pos1);
-        std::string apelido = linha.substr(pos1 + 1, pos2 - pos1 - 1);
-        int vitorias = std::stoi(linha.substr(pos2 + 1, pos3 - pos2 - 1));
-        int derrotas = std::stoi(linha.substr(pos3 + 1));
+    std::vector<std::string> campos;
+    size_t inicio = 0;
+    size_t pos = 0;
 
-        return Jogador(nome, apelido, vitorias, derrotas);
+    while ((pos = linha.find(',', inicio)) != std::string::npos) {
+        campos.push_back(linha.substr(inicio, pos - inicio));
+        inicio = pos + 1;
     }
+    campos.push_back(linha.substr(inicio)); 
+
+    if (campos.size() != 8) {
+        throw std::invalid_argument("Formato inválido na string de entrada para deserialização.");
+    }
+
+    std::string nome = campos[0];
+    std::string apelido = campos[1];
+    int lig4Vitorias = std::stoi(campos[2]);
+    int lig4Derrotas = std::stoi(campos[3]);
+    int velhaVitorias = std::stoi(campos[4]);
+    int velhaDerrotas = std::stoi(campos[5]);
+    int reversiVitorias = std::stoi(campos[6]);
+    int reversiDerrotas = std::stoi(campos[7]);
+
+    return Jogador(nome, apelido, velhaVitorias, velhaDerrotas, lig4Vitorias, lig4Derrotas, reversiVitorias, reversiDerrotas);
+}
+
 };
 
 
@@ -60,71 +92,23 @@ private:
     std::vector<std::unique_ptr<Jogador>> _jogadores;
 
 public:
-    // adicionar jogador ao vetor de cadastros
-    void adicionarJogador(const Jogador& alvo) {
-        _jogadores.push_back(std::make_unique<Jogador>(alvo.getNome(), alvo.getApelido(), alvo.getVitorias(), alvo.getDerrotas()));
-        std::cout << "Jogador adicionado com sucesso!" << std::endl;
-    }
+    //adiciona um jogador ao vetor de cadastro
+    void adicionarJogador(const Jogador& alvo) {}
 
-    // mostra o vetor de cadastros
-    void mostrarJogadores() const {
-        if (_jogadores.empty()) {
-            std::cout << "Nenhum jogador cadastrado." << std::endl;
-            return;
-        }
+    //mostra o vetor de cadastros
+    void mostrarJogadores() const {}
 
-        for (const auto& jogador : _jogadores) {
-            std::cout << "Nome: " << jogador->getNome() << ", Apelido: " << jogador->getApelido()
-                      << ", Vitórias: " << jogador->getVitorias() << ", Derrotas: " << jogador->getDerrotas() << std::endl;
-        }
-    }
+    //importa de um arquivo .txt todos os cadastros
+    void import(const std::string& caminho) {}
 
-    // importa cadastros de um arquivo .txt alvo.
-    void import(const std::string& caminho) {
-        std::ifstream arquivo(caminho);
-        if (!arquivo.is_open()) {
-            std::cerr << "Erro ao abrir o arquivo: " << caminho << std::endl;
-            return;
-        }
+    //salva e atualiza os dados de cadastro em um .txt
+    void save(const std::string& caminho) {}
 
-        std::string linha;
-        while (std::getline(arquivo, linha)) {
-            if (!linha.empty()) {
-                _jogadores.push_back(std::make_unique<Jogador>(Jogador::deserializar(linha)));
-            }
-        }
-        arquivo.close();
-        std::cout << "Jogadores importados com sucesso!" << std::endl;
-    }
+    //remove o jogador alvo do vetor de cadastros
+    void removeJogador(const Jogador& alvo) {}
 
-    // remove o jogador do vetor de cadastros por apelido
-    void removeJogador(const std::string& apelido) {
-    auto it = std::remove_if(
-        _jogadores.begin(), 
-        _jogadores.end(),
-        [&apelido](const std::unique_ptr<Jogador>& jogador) {
-            return jogador->getApelido() == apelido;
-        }
-    );
-
-    if (it != _jogadores.end()) {
-        _jogadores.erase(it, _jogadores.end());
-        std::cout << "Jogador com apelido \"" << apelido << "\" removido com sucesso." << std::endl;
-    } else {
-        std::cout << "Jogador com apelido \"" << apelido << "\" não encontrado." << std::endl;
-    }
-}
-
-
-    // verifica se um jogador está dentro do cadastro e retorna verdadeiro ou falso
-    bool check(const Jogador& alvo) const {
-        for (const auto& jogador : _jogadores) {
-            if (jogador->getApelido() == alvo.getApelido()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    //verifica se o jogador alvo está no vetor de cadastros, retorna 0 ou 1.
+    bool check(const Jogador& alvo) const {}
 };
 
 #endif

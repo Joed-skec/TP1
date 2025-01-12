@@ -1,5 +1,5 @@
 #ifndef jogos_hpp
-#define Jogos_hpp
+#define jogos_hpp
 #include <iostream>
 #include <vector>
 #include "cores.hpp"
