@@ -38,6 +38,10 @@ public:
     // métodos de acesso
     std::string getNome() const { return _nome; }
     std::string getApelido() const { return _apelido; }
+    const Winrate& getLig4() const { return Lig4; }
+    const Winrate& getReversi() const { return Reversi; }
+    const Winrate& getVelha() const { return Velha; }
+    //possível adicionar outros jogos aqui.
     int getVitorias(const Winrate& jogo) const { return jogo._vitorias; }
     int getDerrotas(const Winrate& jogo) const { return jogo._derrotas; }
 
@@ -47,43 +51,10 @@ public:
     void setDerrotas(Winrate& jogo, int derrotas) { jogo._derrotas = derrotas; }
 
     // serializar o jogador como string para salvar em arquivo
-    std::string serializar() const {
-        return _nome + "," + _apelido + "," + 
-        std::to_string(Velha._vitorias) + "," + std::to_string(Velha._derrotas) + "," + 
-        std::to_string(Lig4._vitorias) + "," + std::to_string(Lig4._derrotas) + "," + 
-        std::to_string(Reversi._vitorias) + "," + std::to_string(Reversi._derrotas);
-        //é possível adicionar novos jogos a partir daqui.
-    }
+    std::string serializar() const;
 
     //deserializar uma string para criar um jogador
-    static Jogador deserializar(const std::string& linha) {
-
-    std::vector<std::string> campos;
-    size_t inicio = 0;
-    size_t pos = 0;
-
-    while ((pos = linha.find(',', inicio)) != std::string::npos) {
-        campos.push_back(linha.substr(inicio, pos - inicio));
-        inicio = pos + 1;
-    }
-    campos.push_back(linha.substr(inicio)); 
-
-    if (campos.size() != 8) {
-        throw std::invalid_argument("Formato inválido na string de entrada para deserialização.");
-    }
-
-    std::string nome = campos[0];
-    std::string apelido = campos[1];
-    int lig4Vitorias = std::stoi(campos[2]);
-    int lig4Derrotas = std::stoi(campos[3]);
-    int velhaVitorias = std::stoi(campos[4]);
-    int velhaDerrotas = std::stoi(campos[5]);
-    int reversiVitorias = std::stoi(campos[6]);
-    int reversiDerrotas = std::stoi(campos[7]);
-
-    return Jogador(nome, apelido, velhaVitorias, velhaDerrotas, lig4Vitorias, lig4Derrotas, reversiVitorias, reversiDerrotas);
-}
-
+    static Jogador deserializar(const std::string& linha);
 };
 
 
@@ -93,22 +64,22 @@ private:
 
 public:
     //adiciona um jogador ao vetor de cadastro
-    void adicionarJogador(const Jogador& alvo) {}
+    void adicionarJogador(const Jogador& alvo);
 
     //mostra o vetor de cadastros
-    void mostrarJogadores() const {}
+    void mostrarJogadores() const;
 
     //importa de um arquivo .txt todos os cadastros
-    void import(const std::string& caminho) {}
+    void import(const std::string& caminho) ;
 
     //salva e atualiza os dados de cadastro em um .txt
-    void save(const std::string& caminho) {}
+    void save(const std::string& caminho) ;
 
     //remove o jogador alvo do vetor de cadastros
-    void removeJogador(const Jogador& alvo) {}
+    void removeJogador(const Jogador& alvo) ;
 
     //verifica se o jogador alvo está no vetor de cadastros, retorna 0 ou 1.
-    bool check(const Jogador& alvo) const {}
+    bool check(const Jogador& alvo) const ;
 };
 
 #endif

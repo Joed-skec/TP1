@@ -1,8 +1,7 @@
 #ifndef jogos_hpp
 #define jogos_hpp
 #include <iostream>
-#include <vector>
-#include "cores.hpp"
+#include <vector> 
 
 class JogosDeTabuleiro{
     public:
@@ -29,7 +28,7 @@ class Reversi : public JogosDeTabuleiro{
     public:
         //Quando nao passar nem um parametro o tamanho do board sera padrao para reversi (8x8)
         Reversi(int linhas = 8, int colunas = 8);
-        int ler_jogada(int linha, int coluna, int jogador) override;
+        // int ler_jogada(int linha, int coluna, int jogador) override;
         //bool verificar_jogada(int linha, int coluna, int jogador) override;
         std::vector<std::vector<bool>> atualizar_jogadas_validas(int jogador) const;
         //bool testar_condicao_de_vitoria() const override;
