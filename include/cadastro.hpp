@@ -21,6 +21,7 @@ private:
     Winrate Lig4;
     Winrate Velha;
     Winrate Reversi;
+    //adicionar outros jogos
 
 public:
     // construtor

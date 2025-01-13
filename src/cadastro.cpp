@@ -1,5 +1,5 @@
 #include "cadastro.hpp"
-
+//done
 std::string Jogador::serializar() const {
         return _nome + "," + _apelido + "," + 
         std::to_string(Velha._vitorias) + "," + std::to_string(Velha._derrotas) + "," + 
@@ -7,7 +7,7 @@ std::string Jogador::serializar() const {
         std::to_string(Reversi._vitorias) + "," + std::to_string(Reversi._derrotas);
         //é possível adicionar novos jogos a partir daqui.
     }
-
+//done
 Jogador Jogador::deserializar(const std::string& linha) {
 
     std::vector<std::string> campos;
@@ -35,12 +35,13 @@ Jogador Jogador::deserializar(const std::string& linha) {
 
     return Jogador(nome, apelido, velhaVitorias, velhaDerrotas, lig4Vitorias, lig4Derrotas, reversiVitorias, reversiDerrotas);
 }
-
+//done
 void Cadastro::adicionarJogador(const Jogador& alvo) { 
     _jogadores.push_back(std::make_unique<Jogador>(alvo));
     std::cout << "Jogador " << alvo.getApelido() << " cadastrado com sucesso" << std::endl;
 }
 
+//done
 void Cadastro::mostrarJogadores() const {
     if (_jogadores.empty()) {
         std::cout << "Nenhum jogador cadastrado." << std::endl;
@@ -48,25 +49,31 @@ void Cadastro::mostrarJogadores() const {
     }
     
     for (const auto& jogador : _jogadores) {
-            std::cout << "Nome: " << jogador->getNome()
-                      << ", Apelido: " << jogador->getApelido()
-                      << ", Vitórias Lig4: " << jogador->getVitorias(jogador->getLig4())
-                      << ", Derrotas Lig4: " << jogador->getDerrotas(jogador->getLig4())
-                      << ", Vitórias Velha: " << jogador->getVitorias(jogador->getVelha())
-                      << ", Derrotas Velha: " << jogador->getDerrotas(jogador->getVelha())
-                      << ", Vitórias Reversi: " << jogador->getVitorias(jogador->getReversi())
-                      << ", Derrotas Reversi: " << jogador->getDerrotas(jogador->getReversi())
-                      << std::endl;
+            std::cout << jogador->getNome() << " " << jogador->getApelido() <<
+                "LIG4 - V: " << jogador->getVitorias(jogador->getLig4()) <<
+                " D: " << jogador->getDerrotas(jogador->getLig4()) <<
+                "VELHA - V:" << jogador->getVitorias(jogador->getVelha()) <<
+                " D: " << jogador->getDerrotas(jogador->getVelha()) <<
+                "REVERSI - V: " << jogador->getVitorias(jogador->getReversi()) <<
+                " D: " << jogador->getDerrotas(jogador->getReversi()) <<
+                //possivel adicionar outros jogos aqui
+                std::endl;
         }
 }
 
+//done
 void Cadastro::import(const std::string& caminho) {
+    //abre o arquivo para leitura
     std::ifstream arquivo(caminho);
+    //verifica se o arquivo foi aberto com sucesso
     if (!arquivo.is_open()) {
-        std::cerr << "Erro ao abrir o arquivo: " << caminho << std::endl;
+        std::cerr << "erro ao abrir o arquivo: " << caminho << std::endl;
         return;
     }
+    //limpa o vetor de jogadores para importar a lista atualizada
+    _jogadores.clear();
 
+    //importa todos os jogadores do arquivo .txt
     std::string linha;
     while (std::getline(arquivo, linha)) {
         if (!linha.empty()) {
@@ -77,10 +84,29 @@ void Cadastro::import(const std::string& caminho) {
     std::cout << "jogadores importados com sucesso." << std::endl;
 }
 
-void save(const std::string& caminho) {}
+//done
+//limpa o arquivo e salva
+void Cadastro::save(const std::string& caminho) {
+    //abre o arquivo para gravação
+    std::ofstream arquivo(caminho);
+    //verifica se o arquivo foi aberto com sucesso
+    if (!arquivo.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo: " << caminho << std::endl;
+        return;
+    }
+    //limpa o arquivo para atualização
+    arquivo.clear();
+    //itera entre os jogadores e grava-os no txt
+    for (const auto& jogador : _jogadores) {
+        arquivo << jogador->serializar() << "\n";
+    }
+    arquivo.close();
+    std::cout << "jogadores salvos com sucesso" << std::endl;
+}
 
-
+//done
 void Cadastro::removeJogador(const Jogador& alvo) {
+    
     auto it = std::remove_if(_jogadores.begin(), _jogadores.end(),
         [&alvo](const std::unique_ptr<Jogador>& jogador) {
             return jogador->getApelido() == alvo.getApelido();
@@ -89,12 +115,12 @@ void Cadastro::removeJogador(const Jogador& alvo) {
 
     if (it != _jogadores.end()) {
         _jogadores.erase(it, _jogadores.end()); 
-        std::cout << "jogador removido com sucesso" << std::endl;
+        std::cout << "Jogador " << alvo.getApelido() << " removido com sucesso" << std::endl;
     } else {
-        std::cout << "jogador não encontrado." << std::endl;
+        std::cout << "ERRO: jogador inexistente" << std::endl;
     }
 }
-
+//done
 bool Cadastro::check(const Jogador& alvo) const {
         for (const auto& jogador : _jogadores) {
             if (jogador->getApelido() == alvo.getApelido()) {
