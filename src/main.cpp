@@ -1,9 +1,13 @@
 #include <iostream>
+#include <stdlib.h>
 #include <string>
 #include "cadastro.hpp"
 #include "jogos.hpp"
 #include "partida.hpp"
 
+constexpr unsigned int hashString(const char* str, unsigned int hash = 0) {
+    return *str ? hashString(str + 1, (hash * 31) + *str) : hash;
+}
 int main () {
 
     //inicializa o vetor de cadastro, carregando as informações do .txt
@@ -23,21 +27,9 @@ int main () {
 
     std::string comando;
 
-    // while(0 == 0) {
-    //     std::cin >> comando;
-    //     if (comando == "CJ") {
-    //         std::cin >> inputNome;
-    //         std::cin >> inputApelido;
-    //         Jogador novoJogador(inputNome, inputApelido);
-    //         jogadores->adicionarJogador(novoJogador);
-    //         break;
-    //     }
-    // }
-    Cadastro cadastro;
-        Jogador jogador("João", "john", 10, 5, 8, 4, 12, 6);
-        cadastro.adicionarJogador(jogador);
-        cadastro.mostrarJogadores();
-    
-    
+    switch(hashString(comando.c_str())) {
+        
+    }
+
     return 0;
 }
