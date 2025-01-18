@@ -48,41 +48,131 @@ int JogosDeTabuleiro::imprimir_vetor() const {
 }
 
 
+const std::vector<std::pair<int, int>> Reversi::direcoes = {
+    {-1, -1}, {-1, 0}, {-1, 1},
+    {0, -1},           {0, 1},
+    {1, -1},  {1, 0},  {1, 1}
+};
+
 Reversi::Reversi(int linhas, int colunas) : JogosDeTabuleiro(linhas, colunas) {
     JogadasValidas_.resize(linhas, std::vector<bool>(colunas, false));
+    
+    // Configuração inicial padrão do Reversi
+    // Coloca as 4 peças iniciais no centro do tabuleiro
+    int meio_linha = linhas / 2;
+    int meio_coluna = colunas / 2;
+    
+    Tabuleiro_[meio_linha-1][meio_coluna-1] = 2;   // O
+    Tabuleiro_[meio_linha-1][meio_coluna] = 1;     // X
+    Tabuleiro_[meio_linha][meio_coluna-1] = 1;     // X
+    Tabuleiro_[meio_linha][meio_coluna] = 2;       // O
 }
 
+bool Reversi::verificar_direcao(int linha, int coluna, int dLinha, int dColuna, int jogador) const {
+    int oponente = (jogador == 1) ? 2 : 1;
+    int novaLinha = linha + dLinha;
+    int novaColuna = coluna + dColuna;
+    bool encontrou_oponente = false;
     
-std::vector<std::vector<bool>> Reversi::atualizar_jogadas_validas(int jogador) const {
-    //A ideia é gerar um tabuleiro booleano no qual 0 sao jogadas invalidas e 1 sao jogadas validas.
-    int preta, branca;
-    std::vector<std::vector<int>> Tabuleiro = this->get_tabuleiro(); //tabuleiro real
-    std::vector<std::vector<bool>> JogadasValidas = JogadasValidas_; //tabuleiro booleano
+    if (get_casa(linha + dLinha, coluna + dColuna) != 0) return false;
+    
+    while (novaLinha >= 0 && novaLinha < getLinhas() && 
+           novaColuna >= 0 && novaColuna < getColunas()) {
+        
+        int casa_atual = get_casa(novaLinha, novaColuna);
+        
+        if (casa_atual == 0) return false;
+        if (casa_atual == oponente) {
+            encontrou_oponente = true;
+        }
+        if (casa_atual == jogador) {
+            return encontrou_oponente;
+        }
+        
+        novaLinha += dLinha;
+        novaColuna += dColuna;
+    }
+    
+    return false;
+}
 
-    //AGORA IREMOS PROCURAR JOGADAS VALIDAS, PRA ISSO IREMOS FAZER UM LOOP QUE IRA PASSAR POR TODAS AS CASAS.
-    for (int i = 0; i < this->getLinhas(); i++)
-    {
-        for (int j = 0; j < this->getColunas(); j++)
-        {
-            verificar_jogada(i, j, jogador)
+bool Reversi::verificar_jogada(int linha, int coluna, int jogador) const {
+    int oponente = (jogador == 1) ? 2 : 1;
+    if (linha < 0 || linha >= getLinhas() || coluna < 0 || coluna >= getColunas()) {
+        return false;
+    }
+    
+    if (get_casa(linha, coluna) != 0) {
+        return false;
+    }
+    
+    for (const auto& dir : direcoes) {
+        if (verificar_direcao(linha, coluna, dir.first, dir.second, jogador)) {
+            return true;
         }
     }
-    //PRIMEIRAMENTE TEMOS QUE VER SE A PECA TEM ALGUMA PECA DO ADVERSARIO EM VOLTA; 
-    //verificar casas invalidas por nao terem a cor oposta em volta.
-    for (int i = 0; i < getLinhas()
-
-}
-int Reversi::ler_jogada(int linha, int coluna, int jogador) {
-
-}
-
-bool Reversi::verificar_jogada(int linha, int coluna, int jogador){
     
+    return false;
 }
 
+int Reversi::ler_jogada(int linha, int coluna, int jogador) {
+    if (!verificar_jogada(linha, coluna, jogador)) {
+        return 0;
+    }
+    
+    Tabuleiro_[linha][coluna] = jogador;
+    
+    int oponente = (jogador == 1) ? 2 : 1;
+    int pecas_capturadas = 0;
+    
+    for (const auto& dir : direcoes) {
+        if (verificar_direcao(linha, coluna, dir.first, dir.second, jogador)) {
+            int novaLinha = linha + dir.first;
+            int novaColuna = coluna + dir.second;
+            
+            while (get_casa(novaLinha, novaColuna) == oponente) {
+                Tabuleiro_[novaLinha][novaColuna] = jogador;
+                pecas_capturadas++;
+                novaLinha += dir.first;
+                novaColuna += dir.second;
+            }
+        }
+    }
+    
+    return pecas_capturadas;
+}
 
-direcoes{
-    {-1, -1}, {0, -1}, {1, -1},
-    {-1,  1},          {1,  0}
-    {-1,  1}, {1,  0}, {1,  1}
+std::vector<std::vector<bool>> Reversi::atualizar_jogadas_validas(int jogador) const {
+    std::vector<std::vector<bool>> jogadas_validas(getLinhas(), 
+                                                  std::vector<bool>(getColunas(), false));
+    
+    for (int i = 0; i < getLinhas(); i++) {
+        for (int j = 0; j < getColunas(); j++) {
+            jogadas_validas[i][j] = verificar_jogada(i, j, jogador);
+        }
+    }
+    
+    return jogadas_validas;
+}
+
+bool Reversi::testar_condicao_de_vitoria() const {
+    std::vector<std::vector<bool>> jogadas_validas_1 = atualizar_jogadas_validas(1);
+    std::vector<std::vector<bool>> jogadas_validas_2 = atualizar_jogadas_validas(2);
+
+    bool ha_jogadas_1 = false;
+    bool ha_jogadas_2 = false;
+
+    for (const auto& linha : jogadas_validas_1) {
+        for (bool jogada : linha) {
+            if (jogada) ha_jogadas_1 = true;
+        }
+    }
+
+    for (const auto& linha : jogadas_validas_2) {
+        for (bool jogada : linha) {
+            if (jogada) ha_jogadas_2 = true;
+        }
+    }
+
+    return !ha_jogadas_1 && !ha_jogadas_2;
 }
