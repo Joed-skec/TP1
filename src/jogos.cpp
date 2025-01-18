@@ -74,19 +74,19 @@ bool Reversi::verificar_direcao(int linha, int coluna, int dLinha, int dColuna, 
     int novaColuna = coluna + dColuna;
     bool encontrou_oponente = false;
     
-    if (get_casa(linha + dLinha, coluna + dColuna) != 0) return false;
+    if (get_casa(linha + dLinha, coluna + dColuna) != 0) return false; //se a primeira casa nessa direcao for zero, entao é invalida
     
-    while (novaLinha >= 0 && novaLinha < getLinhas() && 
+    while (novaLinha >= 0 && novaLinha < getLinhas() &&  //enquanto estiver no tabuleiro 
            novaColuna >= 0 && novaColuna < getColunas()) {
         
         int casa_atual = get_casa(novaLinha, novaColuna);
         
-        if (casa_atual == 0) return false;
+        if (casa_atual == 0) return false; 
         if (casa_atual == oponente) {
             encontrou_oponente = true;
         }
         if (casa_atual == jogador) {
-            return encontrou_oponente;
+            return encontrou_oponente;  // se encontrar uma casa do oponente e dps (sem encotnrar zeros) encontrar uma casa propria do jogador, entao a direcao é valida!
         }
         
         novaLinha += dLinha;
@@ -102,11 +102,11 @@ bool Reversi::verificar_jogada(int linha, int coluna, int jogador) const {
         return false;
     }
     
-    if (get_casa(linha, coluna) != 0) {
+    if (get_casa(linha, coluna) != 0) { //Verifica se tentou jogar em uma casa vazia
         return false;
     }
     
-    for (const auto& dir : direcoes) {
+    for (const auto& dir : direcoes) { //verifica todas direcoes
         if (verificar_direcao(linha, coluna, dir.first, dir.second, jogador)) {
             return true;
         }
@@ -116,7 +116,7 @@ bool Reversi::verificar_jogada(int linha, int coluna, int jogador) const {
 }
 
 int Reversi::ler_jogada(int linha, int coluna, int jogador) {
-    if (!verificar_jogada(linha, coluna, jogador)) {
+    if (!verificar_jogada(linha, coluna, jogador)) { //verifica se a jogada é valida
         return 0;
     }
     
