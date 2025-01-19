@@ -176,3 +176,78 @@ bool Reversi::testar_condicao_de_vitoria() const {
 
     return !ha_jogadas_1 && !ha_jogadas_2;
 }
+
+JogoDaVelha::JogoDaVelha(int linhas, int colunas) : JogosDeTabuleiro(linhas, colunas) {
+    // Inicializa o tabuleiro vazio
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            Tabuleiro_[i][j] = 0;
+        }
+    }
+}
+
+bool JogoDaVelha::verificar_jogada(int linha, int coluna, int jogador) const {
+    // Verifica se a posição está dentro dos limites do tabuleiro
+    if (linha < 0 || linha >= getLinhas() || coluna < 0 || coluna >= getColunas()) {
+        return false;
+    }
+    
+    // Verifica se a posição está vazia
+    return (get_casa(linha, coluna) == 0);
+}
+
+int JogoDaVelha::ler_jogada(int linha, int coluna, int jogador) {
+    if (!verificar_jogada(linha, coluna, jogador)) {
+        return 0;  // Jogada inválida
+    }
+    
+    // Coloca a marca do jogador (1 para X, 2 para O)
+    Tabuleiro_[linha][coluna] = jogador;
+    return 1;  // Jogada bem-sucedida
+}
+
+bool JogoDaVelha::testar_condicao_de_vitoria() const {
+    // Verifica linhas
+    for (int i = 0; i < getLinhas(); i++) {
+        if (get_casa(i, 0) != 0 && 
+            get_casa(i, 0) == get_casa(i, 1) && 
+            get_casa(i, 1) == get_casa(i, 2)) {
+            return true;
+        }
+    }
+    
+    // Verifica colunas
+    for (int j = 0; j < getColunas(); j++) {
+        if (get_casa(0, j) != 0 && 
+            get_casa(0, j) == get_casa(1, j) && 
+            get_casa(1, j) == get_casa(2, j)) {
+            return true;
+        }
+    }
+    
+    // Verifica diagonais
+    if (get_casa(0, 0) != 0 && 
+        get_casa(0, 0) == get_casa(1, 1) && 
+        get_casa(1, 1) == get_casa(2, 2)) {
+        return true;
+    }
+    
+    if (get_casa(0, 2) != 0 && 
+        get_casa(0, 2) == get_casa(1, 1) && 
+        get_casa(1, 1) == get_casa(2, 0)) {
+        return true;
+    }
+    
+    // Verifica empate (tabuleiro cheio)
+    bool tem_espaco_vazio = false;
+    for (int i = 0; i < getLinhas(); i++) {
+        for (int j = 0; j < getColunas(); j++) {
+            if (get_casa(i, j) == 0) {
+                tem_espaco_vazio = true;
+                break;
+            }
+        }
+    }
+    
+    return !tem_espaco_vazio;  // Retorna true se o tabuleiro estiver cheio (empate)
+}
